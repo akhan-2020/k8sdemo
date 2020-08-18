@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: k8sdemo
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.deployment.namespace }}
+spec:
+  replicas: {{ .Values.deployment.replicas }}
+  selector:
+    matchLabels:
+      run: {{ .Values.labels.AppName }}
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        run: k8sdemo
+    spec:
+      serviceAccountName: {{ .Values.deployment.serviceAccountName }}
+      volumes:
+        - name: cacerts-volume
+          secret:
+            secretName: cacerts
+      containers:
+        - image: akhan2017/k8sdemo
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          name: k8sdemo
+          livenessProbe:
+            httpGet:
+              port: {{ .Values.service.targetPort }}
+              path: {{ .Values.livenessProbe.path }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+          readinessProbe:
+            httpGet:
+              port: {{ .Values.service.targetPort }}
+              path: {{ .Values.readinessProbe.path }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+          resources: {}
+          env:
+            - name: spring_profiles_active
+              value: DEV
+          volumeMounts:
+            - mountPath: /config/secrets/cacerts
+              name: cacerts-volume
+              subPath: cacerts

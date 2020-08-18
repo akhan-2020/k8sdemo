@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    run: k8sdemo
+  name: k8sdemo
+  namespace: akhan
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: k8sdemo
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        run: k8sdemo
+    spec:
+      serviceAccountName: springboot-service-account
+      volumes:
+        - name: cacerts-volume
+          secret:
+            secretName: cacerts
+      containers:
+        - image: akhan2017/k8sdemo
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 999
+            runAsNonRoot: true
+            allowPrivilegeEscalation: false
+          name: k8sdemo
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/liveness
+            initialDelaySeconds: 30
+          readinessProbe:
+            httpGet:
+                port: 8080
+                path: /actuator/health/readiness
+            initialDelaySeconds: 15
+          resources: {}
+          env:
+            - name: spring_profiles_active
+              value: qa
+          volumeMounts:
+            - mountPath: /config/secrets/cacerts
+              name: cacerts-volume
+              subPath: cacerts

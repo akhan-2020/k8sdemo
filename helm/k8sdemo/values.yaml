@@ -1,0 +1,32 @@
+# environment defaults internally to development
+# however, consumers can override it using a custom values file.
+environment:
+deployment:
+  name: k8sdemo-deployment
+  replicas: 1
+  serviceAccountName: springboot-service-account
+  namespace: akhan
+
+labels:
+  AppName: k8sdemo
+  AppVersion: "0.1.0"
+  BuildName: k8sdemo-build
+  BuildVersion: "1.0"
+
+service:
+  type: LoadBalancer
+  port: 8181
+  targetPort: 8080
+
+sa:
+  name: springboot-service-account
+
+livenessProbe:
+  path: /actuator/health/liveness
+  initialDelaySeconds: 20
+  periodSeconds: 30
+
+readinessProbe:
+  path:  /actuator/health/readiness
+  initialDelaySeconds: 10
+  periodSeconds: 10

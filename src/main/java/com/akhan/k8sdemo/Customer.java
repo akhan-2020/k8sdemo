@@ -2,8 +2,9 @@ package com.akhan.k8sdemo;
 
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.couchbase.core.mapping.Document;
 
-
+@Document(expiry = 300)
 public class Customer {
 
     @Id
