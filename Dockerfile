@@ -1,4 +1,4 @@
-FROM moneygram-docker.jfrog.io/java-base-image/amazoncorretto:11
+FROM amazoncorretto:11
 VOLUME /tmp
 ARG JAR_FILE
 
